@@ -219,6 +219,7 @@ unsafe fn table_grow_func_ref(
         TableElementType::Func => NonNull::new(init_value.cast::<VMFuncRef>()).into(),
         TableElementType::GcRef => unreachable!(),
         TableElementType::Cont => unreachable!(),
+        TableElementType::Handler => unreachable!(),
     };
 
     let result = instance
@@ -249,6 +250,7 @@ unsafe fn table_grow_gc_ref(
             })
             .into(),
         TableElementType::Cont => unreachable!(),
+        TableElementType::Handler => unreachable!(),
     };
 
     let result = instance
@@ -309,6 +311,7 @@ unsafe fn table_fill_func_ref(
         }
         TableElementType::GcRef => unreachable!(),
         TableElementType::Cont => unreachable!(),
+        TableElementType::Handler => unreachable!(),
     }
 }
 
@@ -334,6 +337,7 @@ unsafe fn table_fill_gc_ref(
         }
 
         TableElementType::Cont => unreachable!(),
+        TableElementType::Handler => unreachable!(),
     }
 }
 
@@ -366,6 +370,8 @@ unsafe fn table_fill_cont_obj(
         _ => panic!("Wrong table filling function"),
     }
 }
+
+// TODO(ishmis): ^^ but handler
 
 // Implementation of `table.copy`.
 unsafe fn table_copy(

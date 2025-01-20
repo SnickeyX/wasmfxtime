@@ -36,6 +36,9 @@ pub enum TableElement {
 
     /// A `contref`
     ContRef(Option<VMContObj>),
+
+    /// A `handlerref` -> TODO(ishmis): make a VMHandlerObj!!
+    HandlerRef(Option<VMContObj>),
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
@@ -43,6 +46,7 @@ pub enum TableElementType {
     Func,
     GcRef,
     Cont,
+    Handler,
 }
 
 impl TableElementType {
@@ -51,6 +55,7 @@ impl TableElementType {
             (TableElement::FuncRef(_), TableElementType::Func) => true,
             (TableElement::GcRef(_), TableElementType::GcRef) => true,
             (TableElement::ContRef(_), TableElementType::Cont) => true,
+            (TableElement::HandlerRef(_), TableElementType::Handler) => true,
             _ => false,
         }
     }
@@ -61,6 +66,8 @@ impl TableElementType {
             TableElementType::Func => core::mem::size_of::<FuncTableElem>(),
             TableElementType::GcRef => core::mem::size_of::<Option<VMGcRef>>(),
             TableElementType::Cont => core::mem::size_of::<ContTableElem>(),
+            // TODO(ishmis)
+            TableElementType::Handler => todo!(),
         }
     }
 }
@@ -88,6 +95,7 @@ impl TableElement {
             Self::UninitFunc => panic!("Uninitialized table element value outside of table slot"),
             Self::GcRef(_) => panic!("GC reference is not a function reference"),
             Self::ContRef(_) => panic!("Continuation reference is not a function reference"),
+            Self::HandlerRef(_) => panic!("Handler reference is not a function reference"),
         }
     }
 
@@ -364,6 +372,7 @@ pub(crate) fn wasm_to_table_type(ty: WasmRefType) -> TableElementType {
         WasmHeapTopType::Func => TableElementType::Func,
         WasmHeapTopType::Any | WasmHeapTopType::Extern => TableElementType::GcRef,
         WasmHeapTopType::Cont => TableElementType::Cont,
+        WasmHeapTopType::Handler => TableElementType::Handler,
     }
 }
 
@@ -389,6 +398,8 @@ impl Table {
                 elements: vec![None; minimum],
                 maximum: maximum,
             })),
+            // TODO(ishmis)
+            TableElementType::Handler => todo!(),
         }
     }
 
@@ -468,6 +479,8 @@ impl Table {
                 ));
                 Ok(Self::from(StaticContTable { data, size }))
             }
+            // TODO(ishmis)
+            TableElementType::Handler => todo!(),
         }
     }
 
@@ -666,6 +679,8 @@ impl Table {
                 let contrefs = self.contrefs_mut();
                 contrefs[start..end].fill(c);
             }
+            // TODO(ishmis)
+            TableElement::HandlerRef(_vmhdl_obj) => todo!(),
         }
 
         Ok(())
@@ -806,6 +821,8 @@ impl Table {
                 .get(index)
                 .copied()
                 .map(|e| TableElement::ContRef(e)),
+            // TODO(ishmis)
+            TableElementType::Handler => todo!(),
         }
     }
 
@@ -836,6 +853,8 @@ impl Table {
             TableElement::ContRef(c) => {
                 *self.contrefs_mut().get_mut(index).ok_or(())? = c;
             }
+            // TODO(ishmis)
+            TableElement::HandlerRef(_vmhdl_obj) => todo!(),
         }
         Ok(())
     }
@@ -1072,6 +1091,8 @@ impl Table {
                 dst_table.contrefs_mut()[dst_range]
                     .copy_from_slice(&src_table.contrefs()[src_range]);
             }
+            // TODO(ishmis)
+            TableElementType::Handler => todo!(),
         }
     }
 
@@ -1124,6 +1145,8 @@ impl Table {
                 // `contref` are `Copy`, so just do a memmove
                 self.contrefs_mut().copy_within(src_range, dst_range.start);
             }
+            // TODO(ishmis)
+            TableElementType::Handler => todo!(),
         }
     }
 }
