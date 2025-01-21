@@ -1483,6 +1483,11 @@ impl<'a, 'func, 'module_env> Call<'a, 'func, 'module_env> {
             WasmHeapType::NoCont | WasmHeapType::ConcreteCont(_) | WasmHeapType::Cont => {
                 unreachable!()
             }
+
+            // TODO(ishmis): check this
+            WasmHeapType::NoHandler | WasmHeapType::ConcreteHandler(_) | WasmHeapType::Handler => {
+                unreachable!()
+            }
         }
 
         // Load the caller's `VMSharedTypeIndex.
@@ -1706,6 +1711,7 @@ impl<'module_environment> TargetEnvironment for FuncEnvironment<'module_environm
             WasmHeapTopType::Extern | WasmHeapTopType::Any => true,
             WasmHeapTopType::Func => false,
             WasmHeapTopType::Cont => false,
+            WasmHeapTopType::Handler => false,
         };
         (ty, needs_stack_map)
     }
@@ -1845,6 +1851,11 @@ impl FuncEnvironment<'_> {
                     0,
                 ))
             }
+            // Handler types.
+            WasmHeapTopType::Handler => {
+                // TODO(ishmis): do this!
+                todo!()
+            }
             // Function types.
             WasmHeapTopType::Func => {
                 Ok(self.get_or_init_func_ref_table_elem(builder, table_index, index, false))
@@ -1901,6 +1912,11 @@ impl FuncEnvironment<'_> {
                 let (elem_addr, flags) = table_data.prepare_table_addr(self, builder, index);
                 builder.ins().store(flags, value, elem_addr, 0);
                 Ok(())
+            }
+            // Handler types.
+            WasmHeapTopType::Handler => {
+                // TODO(ishmis)
+                todo!()
             }
         }
     }
@@ -2301,6 +2317,10 @@ impl FuncEnvironment<'_> {
                 let zero = builder.ins().iconst(self.pointer_type(), 0);
                 // TODO do this nicer
                 wasmfx_impl::assemble_contobj(self, builder, zero, zero)
+            }
+            WasmHeapTopType::Handler => {
+                // TODO(ishmis)
+                todo!()
             }
         })
     }
